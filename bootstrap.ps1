@@ -1,3 +1,9 @@
+param(
+  [Switch] $DataDrive,
+  [ValidateSet('hyperv','default','process')]
+  [string]
+  $Isolation = 'hyperv'
+)
 # Exclude Azure VM Agent folders from virus scan (
 Set-MpPreference -ExclusionPath 'C:\Packages\', 'C:\WindowsAzure\'
 Get-PackageProvider -Name nuget -ForceBootstrap -Force
@@ -35,7 +41,9 @@ Set-DscLocalConfigurationManager -Path .\LCM -Verbose
 
 
 # run Install-ContainerHost.ps1
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/install-containerhost.ps1'))
+$installContainerHostPath = Join-Path -Path $PSScriptRoot -ChildPath 'Install-ContainerHost.ps1'
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/install-containerhost.ps1" -OutFile $installContainerHostPath
+&$installContainerHostPath -DataDrive:$DataDrive.IsPresent -Isolation $Isolation
 
 #'{ "hosts": ["tcp://127.0.0.1:2375"] }'|out-file -Encoding ascii -FilePath "$env:programdata/Docker/config/daemon.json"		
 #[System.Environment]::SetEnvironmentVariable('DOCKER_HOST',"tcp://localhost:2375",'Machine')
