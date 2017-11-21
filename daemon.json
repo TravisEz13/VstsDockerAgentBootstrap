@@ -1,0 +1,4 @@
+{ "hosts": ["tcp://127.0.0.1:2375"],
+  "exec-opts":["isolation=hyperv"],
+  "data-root":"F:\\dockerdata"
+}
