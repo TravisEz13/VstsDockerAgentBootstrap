@@ -35,7 +35,7 @@ Set-DscLocalConfigurationManager -Path .\LCM -Verbose
 
 
 # run Install-ContainerHost.ps1
-Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://gist.githubusercontent.com/TravisEz13/9002f83a82c31bf0f9686cdf97c719be/raw/75461d5e11ab18886027e060fed43bb177a000a4/install-ContainerHost.ps1'))
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/install-containerhost.ps1'))
 
 #'{ "hosts": ["tcp://127.0.0.1:2375"] }'|out-file -Encoding ascii -FilePath "$env:programdata/Docker/config/daemon.json"		
 #[System.Environment]::SetEnvironmentVariable('DOCKER_HOST',"tcp://localhost:2375",'Machine')
