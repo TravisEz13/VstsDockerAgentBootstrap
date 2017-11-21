@@ -1,36 +1,84 @@
 
+param(
+    [Switch] $DataDrive,
+    [ValidateSet('hyperv','default','process')]
+    [string]
+    $Isolation = 'hyperv'
+  )
+function Get-daemonJson
+{
+    param(
+        [string[]]
+        $Hosts = "tcp://127.0.0.1:2375",
+        [ValidateSet('hyperv','default','process')]
+        [string]
+        $Isolation = 'hyperv',
+        [string]
+        $DataRoot
+    )
+    $config = @{}
+    if($Hosts)
+    {
+        $config['hosts']=$Hosts
+    }
+
+    $execOpts = @()
+    if($Isolation)
+    {
+        $execOpts += "isolation=$Isolation"
+    }
+
+    if($execOpts.Length -gt 0)
+    {
+        $config['exec-opts'] = $execOpts
+    }
+
+    if($DataRoot)
+    {
+        $config['data-root'] = $DataRoot
+    }
+
+    $config | ConvertTo-Json -Depth 5 | Write-Output
+}
+
 configuration Win10ContainerHost {
     Import-DscResource -ModuleName xPSDesiredStateConfiguration -Name xRemoteFile
     Import-DscResource -ModuleName PSDscResources
     Import-DscResource -ModuleName xWindowsUpdate
     Import-DscResource -ModuleName xStorage
-    Import-DscResource -Module PackageManagementProviderResource    
-    
+    Import-DscResource -Module PackageManagementProviderResource
+
     node localhost {
         WindowsFeature hyperv
         {
             Name = 'hyper-v'
             Ensure = 'Present'
         }
-        xWaitforDisk Disk2
-        {
-            DiskId = 2
-            RetryIntervalSec = 60
-            RetryCount = 30
-        }
-        
-        xDisk DockerDataDisk
-        {
-            DiskId = 2
-            DriveLetter = 'F'
-	        DependsOn='[xWaitForDisk]Disk2'
-        }
 
-        File DockerDataFolder {
-             Ensure         = "Present"
-             DestinationPath = 'F:\dockerdata'
-             Type = 'Directory'
-	         DependsOn='[xDisk]DockerDataDisk'
+        $DataRoot = $null
+        if($DataDrive.IsPresent)
+        {
+            xWaitforDisk Disk2
+            {
+                DiskId = 2
+                RetryIntervalSec = 60
+                RetryCount = 30
+            }
+
+            xDisk DockerDataDisk
+            {
+                DiskId = 2
+                DriveLetter = 'F'
+                DependsOn='[xWaitForDisk]Disk2'
+            }
+
+            $DataRoot = 'F:\dockerdata'
+            File DockerDataFolder {
+                Ensure         = "Present"
+                DestinationPath = $DataRoot
+                Type = 'Directory'
+                DependsOn='[xDisk]DockerDataDisk'
+            }
         }
 
         File DockerStaging {
@@ -38,13 +86,7 @@ configuration Win10ContainerHost {
              DestinationPath = 'C:\dockerstaging'
              Type = 'Directory'
         }
-        
-        xRemoteFile DockerConfigStaging {
-          DestinationPath = 'C:\dockerstaging\daemon.json'
-          Uri = 'https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/daemon.json'
-          DependsOn = '[File]DockerStaging'
-        }
-        
+
         File DockerConfigFolder {
             DestinationPath = "$env:programdata\Docker\config"
             Type = 'Directory'
@@ -54,11 +96,10 @@ configuration Win10ContainerHost {
         {
             SourcePath = 'C:\dockerstaging\daemon.json'
             DestinationPath = "$env:programdata\Docker\config\daemon.json"
-            Checksum = 'SHA-512'
+            Contents = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot)
             MatchSource = $true
             DependsOn = @(
                 '[File]DockerConfigFolder'
-                '[xRemoteFile]DockerConfigStaging'
             )
         }
 
@@ -66,7 +107,7 @@ configuration Win10ContainerHost {
             Name = "DOCKER_HOST"
             Value = "tcp://localhost:2375"
         }
-        
+
         Environment DockerEnv {
           Path = $true
           Name = 'Path'
@@ -84,8 +125,8 @@ configuration Win10ContainerHost {
                 '[WindowsFeature]hyperv'
               )
         }
-        
-        Script DockerServer 
+
+        Script DockerServer
         {
           GetScript = {
             $DockerVersion = 'NotInstalled'
@@ -99,7 +140,7 @@ configuration Win10ContainerHost {
                     $isolation = $runtimeIsolation
                 }
             }
-            catch 
+            catch
             {
             }
             $envValue = [System.Environment]::GetEnvironmentVariable('DOCKER_SERVER','Machine')
@@ -123,7 +164,7 @@ configuration Win10ContainerHost {
                     $isolation = $runtimeIsolation
                 }
             }
-            catch 
+            catch
             {
             }
             [System.Environment]::SetEnvironmentVariable('DOCKER_SERVER',$DockerVersion,'Machine')
@@ -143,7 +184,7 @@ configuration Win10ContainerHost {
                     $isolation = $runtimeIsolation
                 }
             }
-            catch 
+            catch
             {
             }
             $envValue = [System.Environment]::GetEnvironmentVariable('DOCKER_SERVER','Machine')
@@ -151,9 +192,9 @@ configuration Win10ContainerHost {
             $envRootValue = [System.Environment]::GetEnvironmentVariable('DOCKER_ROOT','Machine')
             return ($DockerVersion -eq $envValue -and $isolation -eq $envIsolationValue -and $envRootValue -eq $dockerRoot)
           }
-          DependsOn = "[Service]DockerD"        
+          DependsOn = "[Service]DockerD"
         }
-        
+
         Environment Docker {
             Name = "DOCKER"
             Value = "Installed"
