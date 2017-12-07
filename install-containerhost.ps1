@@ -94,7 +94,6 @@ configuration Win10ContainerHost {
 
         File DockerDaemonJson
         {
-            SourcePath = 'C:\dockerstaging\daemon.json'
             DestinationPath = "$env:programdata\Docker\config\daemon.json"
             Contents = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot)
             MatchSource = $true
