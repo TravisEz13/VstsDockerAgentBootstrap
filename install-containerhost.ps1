@@ -38,7 +38,12 @@ function Get-daemonJson
         $config['data-root'] = $DataRoot
     }
 
-    $config | ConvertTo-Json -Depth 5 | Write-Output
+    $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) -childPath 'dockerConfigSource'
+    New-Item -ItemType Directory -Path $tempDir -Force > $null
+    $configFile = Join-Path $tempDir -ChildPath 'config.json'
+    $config | Out-File -Path $configFile -Encoding ascii -Force
+    
+    return $configFile    
 }
 
 configuration Win10ContainerHost {
@@ -95,7 +100,8 @@ configuration Win10ContainerHost {
         File DockerDaemonJson
         {
             DestinationPath = "$env:programdata\Docker\config\daemon.json"
-            Contents = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot)
+            SourcePath = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot)
+	    Checksum = SHA-1
             MatchSource = $true
             DependsOn = @(
                 '[File]DockerConfigFolder'
