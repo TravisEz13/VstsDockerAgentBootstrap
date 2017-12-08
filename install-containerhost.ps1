@@ -41,7 +41,7 @@ function Get-daemonJson
     $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) -childPath 'dockerConfigSource'
     New-Item -ItemType Directory -Path $tempDir -Force > $null
     $configFile = Join-Path $tempDir -ChildPath 'config.json'
-    $config | Out-File -Path $configFile -Encoding ascii -Force
+    $config | Out-File -FilePath $configFile -Encoding ascii -Force
     
     return $configFile    
 }
