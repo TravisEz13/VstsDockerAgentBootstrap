@@ -1,6 +1,7 @@
 
 param(
     [Switch] $DataDrive,
+    [Switch] $SkipWua,
     [ValidateSet('hyperv','default','process')]
     [string]
     $Isolation = 'hyperv'
@@ -214,12 +215,15 @@ configuration Win10ContainerHost {
           ValueType = 'Dword'
         }
 
-        xWindowsUpdateAgent wua {
-            IsSingleInstance = 'Yes'
-            UpdateNow        = $true
-            Category         = @('Security')
-            Source           = 'MicrosoftUpdate'
-        }
+        if(!$SkipWua.IsPresent)
+	{
+		xWindowsUpdateAgent wua {
+		    IsSingleInstance = 'Yes'
+		    UpdateNow        = $true
+		    Category         = @('Security')
+		    Source           = 'MicrosoftUpdate'
+		}
+	}
     }
 }
 Win10ContainerHost
