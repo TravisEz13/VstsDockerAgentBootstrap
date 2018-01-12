@@ -1,5 +1,6 @@
 param(
   [Switch] $DataDrive,
+  [Switch] $SkipWua,
   [ValidateSet('hyperv','default','process')]
   [string]
   $Isolation = 'hyperv'
@@ -43,7 +44,7 @@ Set-DscLocalConfigurationManager -Path .\LCM -Verbose
 # run Install-ContainerHost.ps1
 $installContainerHostPath = Join-Path -Path $PSScriptRoot -ChildPath 'Install-ContainerHost.ps1'
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/install-containerhost.ps1" -OutFile $installContainerHostPath
-&$installContainerHostPath -DataDrive:$DataDrive.IsPresent -Isolation $Isolation
+&$installContainerHostPath -DataDrive:$DataDrive.IsPresent -Isolation $Isolation -SkipWua:$SkipWua.IsPresent
 
 #'{ "hosts": ["tcp://127.0.0.1:2375"] }'|out-file -Encoding ascii -FilePath "$env:programdata/Docker/config/daemon.json"		
 #[System.Environment]::SetEnvironmentVariable('DOCKER_HOST',"tcp://localhost:2375",'Machine')
