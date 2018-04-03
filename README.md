@@ -9,4 +9,11 @@ In azure, you can use the custom script agent, or the dev test lab `Run PowerShe
 https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/bootstrap.ps1
 ```
 
+For vms prior to V3, the use the following command to use process isolation
+
+```powershell
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/bootstrap.ps1 -Isolation process
+```
+
 **Note:** The script expects a later task to reboot, because when I use it I always have a later tasks which reboots the machin.
