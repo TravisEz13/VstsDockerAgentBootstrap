@@ -26,7 +26,7 @@ Install-Module -Name PackageManagementProviderResource
 Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyContinue
 
 # version 17.06.2-ee-7-tp2 was broken
-find-package -ProviderName DockerMsftProvider -MinimumVersion 17.06.1-ee  -AllVersions | ? {$_.Version -ne '17.06.2-ee-7-tp2'} | Sort-Object -Property Version -Descending | Select-Object -First 1 | Install-Package
+find-package -ProviderName DockerMsftProvider -MinimumVersion 17.06.1-ee  -AllVersions | ? {$_.Version -ne '17.06.2-ee-7-tp2'} | Sort-Object -Property Version -Descending | Select-Object -First 1 | Install-Package -force
 
 [DscLocalConfigurationManager()]
 configuration LCM {
