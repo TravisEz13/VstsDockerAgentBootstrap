@@ -43,7 +43,7 @@ configuration LCM {
   }
 }
 
-LCM
+$metaFile = LCM
 Set-DscLocalConfigurationManager -Path .\LCM -Verbose
 
 Write-Verbose -message 'Downloading and running Configuration...' -verbose
