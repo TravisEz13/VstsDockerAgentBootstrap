@@ -227,5 +227,6 @@ configuration Win10ContainerHost {
 	}
     }
 }
-Win10ContainerHost
+
+$configFile = Win10ContainerHost
 Start-DscConfiguration .\Win10ContainerHost -Wait -Verbose -Force
