@@ -39,11 +39,11 @@ function Get-daemonJson
         $config['data-root'] = $DataRoot
     }
 
-    $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) -childPath 'dockerConfigSource'
+    $tempDir = "$env:programdata\Docker\config\"
     New-Item -ItemType Directory -Path $tempDir -Force > $null
-    $configFile = Join-Path $tempDir -ChildPath 'config.json'
-    #$config | ConvertTo-Json -Depth 10 | Out-File -FilePath $configFile -Encoding ascii -Force
-    return $config | ConvertTo-Json -Depth 10
+    $configFile = Join-Path $tempDir -ChildPath 'daemon-desired-state.json'
+    $config | ConvertTo-Json -Depth 10 | Out-File -FilePath $configFile -Encoding ascii -Force
+    return $configFile
 }
 
 configuration Win10ContainerHost {
@@ -97,10 +97,12 @@ configuration Win10ContainerHost {
             Type = 'Directory'
         }
 
+        # config file must be ascii
+	# so you cannot use contents
         File DockerDaemonJson
         {
             DestinationPath = "$env:programdata\Docker\config\daemon.json"
-            Contents = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot)
+            SourcePath = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot)
 	    Checksum = 'SHA-1'
             MatchSource = $true
             DependsOn = @(
