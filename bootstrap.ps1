@@ -50,13 +50,12 @@ foreach($module in $moduleList)
 
 
 # Set the machine to use microsoft Update and install security updates
-Write-Verbose -message 'Installing modules...' -verbose
-Install-module -Name xWindowsUpdate -Confirm:$false
-Install-Module -Name xPSDesiredStateConfiguration  -Confirm:$false
-Install-Module -Name xStorage -Confirm:$false
-Install-Module -Name PSDscResources -Confirm:$false
-Install-Module -Name DockerMsftProvider  -Confirm:$false
-Install-Module -Name PackageManagementProviderResource
+foreach($module in $moduleList)
+{
+  Write-Verbose -message "Installing module $module ..." -verbose
+  Install-module -Name $module -Confirm:$false
+}
+
 
 Write-Verbose -message 'Setting DockerMsftProvider sources as trusted...' -verbose
 $null = Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyContinue
