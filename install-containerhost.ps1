@@ -208,6 +208,16 @@ configuration Win10ContainerHost {
             DependsOn = "[Service]DockerD"
         }
 
+	Environment MemoryMB {
+            Name = "MeroryMB"
+            Value = ((Get-CimInstance win32_computersystem).TotalPhysicalMemory /1MB)
+        }
+
+	Environment CpuCoreCount {
+            Name = "CpuCoreCount"
+            Value = (Get-CimInstance -class win32_processor | Measure-Object -Property NumberOfCores -Sum | Select-Object -ExpandProperty Sum)
+        }
+
         Registry VSmbDisableOplocks {
           Ensure = 'Present'
           Key = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization\Containers'
