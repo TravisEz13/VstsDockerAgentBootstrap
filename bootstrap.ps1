@@ -20,6 +20,9 @@ $null = Get-PackageProvider -Name nuget -ForceBootstrap -Force
 Write-Verbose -message 'Setting package sources as trusted...' -verbose
 $null = Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyContinue
 
+Write-Verbose -message 'Updating modules (in case of re-run)...' -verbose
+Update-Module
+
 # Set the machine to use microsoft Update and install security updates
 Write-Verbose -message 'Installing modules...' -verbose
 Install-module -Name xWindowsUpdate -Confirm:$false
