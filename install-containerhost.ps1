@@ -215,7 +215,7 @@ configuration Win10ContainerHost {
 
 	Environment CpuCoreCount {
             Name = "CpuCoreCount"
-            Value = (Get-CimInstance -class win32_processor | Measure-Object -Property NumberOfCores -Sum | Select-Object -ExpandProperty Sum)
+            Value = (Get-CimInstance -class win32_processor | Measure-Object -Property NumberOfLogicalProcessors -Sum | Select-Object -ExpandProperty Sum)
         }
 
         Registry VSmbDisableOplocks {
