@@ -20,8 +20,34 @@ $null = Get-PackageProvider -Name nuget -ForceBootstrap -Force
 Write-Verbose -message 'Setting package sources as trusted...' -verbose
 $null = Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyContinue
 
-Write-Verbose -message 'Updating modules (in case of re-run)...' -verbose
-Update-Module
+$moduleList = @(
+  'xWindowsUpdate'
+  'xPSDesiredStateConfiguration'
+  'xStorage'
+  'PSDscResources'
+  'DockerMsftProvider'
+  'PackageManagementProviderResource'
+)
+
+foreach($module in $moduleList)
+{
+  Write-Verbose -message "Updating module $module (in case of re-run)..." -verbose
+  Update-Module -name $module
+}
+
+Write-Verbose -message "Checking for side by side resources, DSC doesn't like this.." -verbose
+foreach($module in $moduleList)
+{
+  $versions=Get-InstalledModule -AllVersions -Name AzureRM.NetCore
+  $count = $versions.count -1
+  if($count -ge 1)
+  {
+    Write-Verbose -message "Removing duplicate version of $module ..." -verbose
+    $versions | %{$netVer = [Version]$_.Version; Add-Member -MemberType NoteProperty -Name NetVersion -Value $netVer -InputObject $_; $_}| Sort-Object -Property NetVersion -Bottom $count -Descending | Uninstall-Module    
+  }
+}
+
+
 
 # Set the machine to use microsoft Update and install security updates
 Write-Verbose -message 'Installing modules...' -verbose
