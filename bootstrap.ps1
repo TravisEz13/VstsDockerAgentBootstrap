@@ -43,7 +43,15 @@ foreach($module in $moduleList)
   if($count -ge 1)
   {
     Write-Verbose -message "Removing duplicate version of $module ..." -verbose
-    $versions | %{$netVer = [Version]$_.Version; Add-Member -MemberType NoteProperty -Name NetVersion -Value $netVer -InputObject $_; $_}| Sort-Object -Property NetVersion -Bottom $count -Descending | Uninstall-Module    
+    $versions | 
+      ForEach-Object {
+        $netVer = [Version]$_.Version 
+        Add-Member -MemberType NoteProperty -Name NetVersion -Value $netVer -InputObject $_
+        $_
+      }| 
+        Sort-Object -Property NetVersion -Descending | 
+          Select-Object -Last $Count | 
+            Uninstall-Module    
   }
 }
 
