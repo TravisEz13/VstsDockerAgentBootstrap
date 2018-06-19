@@ -38,7 +38,7 @@ foreach($module in $moduleList)
 Write-Verbose -message "Checking for side by side resources, DSC doesn't like this.." -verbose
 foreach($module in $moduleList)
 {
-  $versions=Get-InstalledModule -AllVersions -Name AzureRM.NetCore
+  $versions=Get-InstalledModule -AllVersions -Name $module -ErrorAction SilentlyContinue
   $count = $versions.count -1
   if($count -ge 1)
   {
