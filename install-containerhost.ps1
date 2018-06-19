@@ -208,9 +208,9 @@ configuration Win10ContainerHost {
             DependsOn = "[Service]DockerD"
         }
 
-	Environment MemoryMB {
-            Name = "MeroryMB"
-            Value = ((Get-CimInstance win32_computersystem).TotalPhysicalMemory /1MB)
+	Environment MemoryGB {
+            Name = "MeroryGB"
+            Value = ([int]((Get-CimInstance win32_computersystem).TotalPhysicalMemory /1GB))
         }
 
 	Environment CpuCoreCount {
