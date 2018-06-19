@@ -5,6 +5,7 @@ param(
   [string]
   $Isolation = 'hyperv'
 )
+Write-Verbose -message ("Running Vsts Docker Agent Bootstrap: DataDrive: '{0}' SkipWua: '{1)' Isolation: {}" -f $DataDrive.IsPresent, $SkipWua.IsPresent, $Isolation)
 # Exclude Azure VM Agent folders from virus scan (
 Write-Verbose -message 'Setting up defender preferences...' -verbose
 $null = Set-MpPreference -ExclusionPath 'C:\Packages\', 'C:\WindowsAzure\'
