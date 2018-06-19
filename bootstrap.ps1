@@ -17,6 +17,9 @@ $null = Get-PackageProvider -Name nuget -ForceBootstrap -Force
 #Install-Package -Name docker -ProviderName DockerMsftProvider -Force
 #[System.Environment]::SetEnvironmentVariable('DOCKER',"Staged",'Machine')
 
+Write-Verbose -message 'Setting package sources as trusted...' -verbose
+$null = Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyContinue
+
 # Set the machine to use microsoft Update and install security updates
 Write-Verbose -message 'Installing modules...' -verbose
 Install-module -Name xWindowsUpdate -Confirm:$false
@@ -26,7 +29,7 @@ Install-Module -Name PSDscResources -Confirm:$false
 Install-Module -Name DockerMsftProvider  -Confirm:$false
 Install-Module -Name PackageManagementProviderResource
 
-Write-Verbose -message 'Setting package sources as trusted...' -verbose
+Write-Verbose -message 'Setting DockerMsftProvider sources as trusted...' -verbose
 $null = Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyContinue
 
 # version 17.06.2-ee-7-tp2 was broken
