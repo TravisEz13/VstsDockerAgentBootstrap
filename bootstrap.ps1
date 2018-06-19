@@ -31,8 +31,11 @@ $moduleList = @(
 
 foreach($module in $moduleList)
 {
-  Write-Verbose -message "Updating module $module (in case of re-run)..." -verbose
-  Update-Module -name $module
+  if(Get-module -listAvailable -name $module -ErrorAction SilentlyContinue)
+  {
+    Write-Verbose -message "Updating module $module (in case of re-run)..." -verbose
+    Update-Module -name $module
+  }
 }
 
 Write-Verbose -message "Checking for side by side resources, DSC doesn't like this.." -verbose
