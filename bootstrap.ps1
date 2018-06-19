@@ -63,8 +63,11 @@ foreach($module in $moduleList)
 # Set the machine to use microsoft Update and install security updates
 foreach($module in $moduleList)
 {
-  Write-Verbose -message "Installing module $module ..." -verbose
-  Install-module -Name $module -Confirm:$false
+  if(!(Get-module -listAvailable -name $module -ErrorAction SilentlyContinue))
+  {
+    Write-Verbose -message "Installing module $module ..." -verbose
+    Install-module -Name $module -Confirm:$false
+  }
 }
 
 
