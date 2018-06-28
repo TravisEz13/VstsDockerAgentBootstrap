@@ -209,7 +209,7 @@ configuration Win10ContainerHost {
         }
 
 	Environment MemoryGB {
-            Name = "MeroryGB"
+            Name = "MemoryGB"
             Value = ([int]((Get-CimInstance win32_computersystem).TotalPhysicalMemory /1GB))
         }
 
