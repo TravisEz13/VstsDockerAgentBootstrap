@@ -2,6 +2,7 @@
 
 To use in setting up a VSTS agent for docker.
 
+For HyperV isolation [Dv3 or Ev3 Azure](https://azure.microsoft.com/en-us/blog/nested-virtualization-in-azure/) machines are required.
 In azure, you can use the custom script agent, or the dev test lab `Run PowerShell` artifact to run the following:
 
 ```powershell
