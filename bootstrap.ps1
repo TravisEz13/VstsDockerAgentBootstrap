@@ -77,7 +77,11 @@ $null = Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyCont
 
 # version 17.06.2-ee-7-tp2 was broken
 Write-Verbose -message 'Installing docker...' -verbose
-$null = find-package -ProviderName DockerMsftProvider -MinimumVersion 17.06.2-ee  -AllVersions | ? {$_.Version -notin '17.06.2-ee-7-tp2','17.06.2-ee-5','17.06.2-ee-7'} | Sort-Object -Property Version -Descending | Select-Object -First 1 | Install-Package -force
+$null = find-package -ProviderName DockerMsftProvider -MinimumVersion 17.06.2-ee  -AllVersions | 
+  Where-Object {$_.Version -notin '17.06.2-ee-7-tp2','17.06.2-ee-5','17.06.2-ee-7'} | 
+    Sort-Object -Property Version -Descending | 
+      Select-Object -First 1 | 
+        Install-Package -force -PackageManagementProvider DockerMsftProvider
 
 Write-Verbose -message 'Configuring LCM...' -verbose
 [DscLocalConfigurationManager()]
