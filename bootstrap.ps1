@@ -67,7 +67,7 @@ foreach($module in $moduleList)
   if(!(Get-module -listAvailable -name $module -ErrorAction SilentlyContinue))
   {
     Write-Verbose -message "Installing module $module ..." -verbose
-    Install-module -Name $module -Confirm:$false
+    Install-module -Name $module -Confirm:$false -Repository PSGallery
   }
 }
 
