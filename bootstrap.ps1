@@ -35,7 +35,7 @@ foreach($module in $moduleList)
   if(Get-module -listAvailable -name $module -ErrorAction SilentlyContinue)
   {
     Write-Verbose -message "Updating module $module (in case of re-run)..." -verbose
-    Update-Module -name $module
+    Update-Module -name $module -ErrorAction SilentlyContinue
   }
 }
 
@@ -67,7 +67,7 @@ foreach($module in $moduleList)
   if(!(Get-module -listAvailable -name $module -ErrorAction SilentlyContinue))
   {
     Write-Verbose -message "Installing module $module ..." -verbose
-    Install-module -Name $module -Confirm:$false -Repository PSGallery
+    Install-module -Name $module -Confirm:$false
   }
 }
 
