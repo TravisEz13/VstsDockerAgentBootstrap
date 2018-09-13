@@ -82,7 +82,7 @@ $dockerPackage = find-package -ProviderName DockerMsftProvider -MinimumVersion 1
     Sort-Object -Property Version -Descending | 
       Select-Object -First 1
 
-Write-Verbose -message "Installing docker: $($docker.Name)-$($docker.Version)..." -verbose
+Write-Verbose -message "Installing docker: $($dockerPackage.Name)-$($dockerPackage.Version)..." -verbose
 
         $dockerPackage | Install-Package -force -PackageManagementProvider DockerMsftProvider
 
