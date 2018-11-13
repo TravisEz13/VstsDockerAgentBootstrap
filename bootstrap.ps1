@@ -47,15 +47,15 @@ foreach($module in $moduleList)
   if($count -ge 1)
   {
     Write-Verbose -message "Removing duplicate version of $module ..." -verbose
-    $versions | 
+    $versions |
       ForEach-Object {
-        $netVer = [Version]$_.Version 
+        $netVer = [Version]$_.Version
         Add-Member -MemberType NoteProperty -Name NetVersion -Value $netVer -InputObject $_
         $_
-      }| 
-        Sort-Object -Property NetVersion -Descending | 
-          Select-Object -Last $Count | 
-            Uninstall-Module    
+      }|
+        Sort-Object -Property NetVersion -Descending |
+          Select-Object -Last $Count |
+            Uninstall-Module
   }
 }
 
@@ -77,10 +77,16 @@ $null = Get-PackageSource | Set-PackageSource -Trusted -ErrorAction SilentlyCont
 
 # version 17.06.2-ee-7-tp2 was broken
 Write-Verbose -message 'Finding docker package...' -verbose
-$dockerPackage = find-package -ProviderName DockerMsftProvider -MinimumVersion 17.06.2-ee  -AllVersions | 
-  Where-Object {$_.Version -notin '17.06.2-ee-7-tp2','17.06.2-ee-5','17.06.2-ee-7'} | 
-    Sort-Object -Property Version -Descending | 
-      Select-Object -First 1
+$dockerPackage = find-package -ProviderName DockerMsftProvider -MinimumVersion 17.06.2-ee  -AllVersions |
+  Where-Object {$_.Version -notin '17.06.2-ee-7-tp2','17.06.2-ee-5','17.06.2-ee-7'} |
+    ForEach-Object {
+      $version = [version]($_.Version -split '\-')[0]
+      $_ | Add-Member -MemberType NoteProperty -Name SimpleVersion -Value $version
+      $_
+    } |
+      Sort-Object -Property SimpleVersion -Descending |
+        Select-Object -First 1
+#TODO: Get best SimpleVersion, if there is more than one of the same simple version, sort all the packages of the same simple version by semantic version
 
 Write-Verbose -message "Installing docker: $($dockerPackage.Name)-$($dockerPackage.Version)..." -verbose
 
@@ -105,7 +111,7 @@ $installContainerHostPath = Join-Path -Path $PSScriptRoot -ChildPath 'Install-Co
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TravisEz13/VstsDockerAgentBootstrap/master/install-containerhost.ps1" -OutFile $installContainerHostPath
 &$installContainerHostPath -DataDrive:$DataDrive.IsPresent -Isolation $Isolation -SkipWua:$SkipWua.IsPresent
 
-#'{ "hosts": ["tcp://127.0.0.1:2375"] }'|out-file -Encoding ascii -FilePath "$env:programdata/Docker/config/daemon.json"		
+#'{ "hosts": ["tcp://127.0.0.1:2375"] }'|out-file -Encoding ascii -FilePath "$env:programdata/Docker/config/daemon.json"
 #[System.Environment]::SetEnvironmentVariable('DOCKER_HOST',"tcp://localhost:2375",'Machine')
 
 # reboot if the current process doesn't have the variable that indicates docker was installed
