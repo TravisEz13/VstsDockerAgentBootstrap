@@ -4,7 +4,11 @@ param(
     [Switch] $SkipWua,
     [ValidateSet('hyperv','default','process')]
     [string]
-    $Isolation = 'hyperv'
+    $Isolation = 'hyperv',
+    [string]
+    $AgentUser = ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name),
+    [string]
+    $DockerGroup = 'DockerUsers'
   )
 function Get-daemonJson
 {
@@ -15,7 +19,9 @@ function Get-daemonJson
         [string]
         $Isolation = 'hyperv',
         [string]
-        $DataRoot
+        $DataRoot,
+        [string]
+        $Group
     )
     $config = @{}
     if($Hosts)
@@ -102,7 +108,7 @@ configuration Win10ContainerHost {
         File DockerDaemonJson
         {
             DestinationPath = "$env:programdata\Docker\config\daemon.json"
-            SourcePath = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot)
+            SourcePath = (Get-daemonJson -Isolation $Isolation -DataRoot $DataRoot -Hosts $null -Group $DockerGroup)
 	    Checksum = 'SHA-1'
             MatchSource = $true
             DependsOn = @(
@@ -112,8 +118,16 @@ configuration Win10ContainerHost {
 
         Environment DockerHost {
             Name = "DOCKER_HOST"
-            Value = "tcp://localhost:2375"
+            Value = ""
         }
+
+        Group DockerGroup
+        {
+            GroupName = $DockerGroup
+            Ensure = 'Present'
+            Members = @( $AgentUser )
+        }
+
 
         Environment DockerEnv {
           Path = $true
@@ -130,6 +144,7 @@ configuration Win10ContainerHost {
             DependsOn = @(
                 '[File]DockerDaemonJson'
                 '[WindowsFeature]hyperv'
+                '[Group]DockerGroup'
               )
         }
 
