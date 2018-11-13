@@ -10,6 +10,7 @@ param(
     [string]
     $DockerGroup = 'DockerUsers'
   )
+[Environment]::SetEnvironmentVariable('DOCKER_HOST',$null,'Machine')
 function Get-daemonJson
 {
     param(
